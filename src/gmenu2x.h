@@ -149,7 +149,7 @@ public:
 	}
 
 	std::shared_ptr<BottomBar> bottomBar;
-	std::shared_ptr<PowerSaver> powerSaver;
+	//std::shared_ptr<PowerSaver> powerSaver;
 	InputManager input;
 #ifdef ENABLE_CPUFREQ
 	Cpu cpu;

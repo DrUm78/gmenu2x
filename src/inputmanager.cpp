@@ -108,6 +108,7 @@ bool InputManager::readConfFile(const string &conffile) {
 			else if (name == "altright") button = ALTRIGHT;
 			else if (name == "menu")     button = MENU;
 			else if (name == "settings") button = SETTINGS;
+			else if (name == "home")     button = HOME;
 			else {
 				WARNING("InputManager: Ignoring unknown button name \"%s\"\n",
 						name.c_str());
@@ -292,7 +293,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 
 	bool screenState = PowerSaver::getInstance()->getScreenState();
 	if (wait) {
-		PowerSaver::getInstance()->resetScreenTimer();
+		//PowerSaver::getInstance()->resetScreenTimer();
 		
 		// if screen was previously off (false), then don't process the input
 		return screenState;

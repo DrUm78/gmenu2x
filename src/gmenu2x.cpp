@@ -28,6 +28,7 @@
 #include "filelister.h"
 #include "font_stack.h"
 #include "font_spec.h"
+#include "funkeymenu.h"
 #include "gmenu2x.h"
 #include "helppopup.h"
 #include "iconbutton.h"
@@ -71,6 +72,7 @@
 //for browsing the filesystem
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 #define DEFAULT_FONT_PATH "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf"
 #define DEFAULT_FONT_SIZE 12
@@ -124,6 +126,46 @@ static void quit_all(int err) {
 	exit(err);
 }
 
+/* Quick save and turn off the console */
+static void quick_poweroff()
+{
+    FILE *fp;
+
+    /* Send command to cancel any previously scheduled powerdown */
+    fp = popen(SHELL_CMD_POWERDOWN_HANDLE, "r");
+    if (fp == NULL)
+    {
+        /* Countdown is still ticking, so better do nothing
+		   than start writing and get interrupted!
+		*/
+	    printf("Failed to cancel scheduled shutdown\n");
+		exit(0);
+    } else {
+        pclose(fp);
+    }
+
+    /* Perform Instant Play save and shutdown */
+    execlp(SHELL_CMD_POWERDOWN, SHELL_CMD_POWERDOWN);
+
+    /* Should not be reached */
+    printf("Failed to perform shutdown\n");
+
+    /* Exit Emulator */
+    exit(0);
+}
+
+/* Handler for SIGUSR1, caused by closing the console */
+static void handle_sigusr1(int sig)
+{
+    printf("Caught signal USR1 %d\n", sig);
+
+    /* Exit menu if it was launched */
+    FunkeyMenu::stop();
+
+    /** Poweroff */
+    quick_poweroff();
+}
+
 static void update_battery(int err)
 {
 	app->bottomBar->updateBattery();
@@ -145,12 +187,21 @@ static void set_handler(int signal, void (*handler)(int))
 }
 
 int main(int /*argc*/, char * /*argv*/[]) {
+	FILE *fp;
+
 	INFO("---- GMenu2X starting ----\n");
 
 	set_handler(SIGINT, &quit_all);
 	set_handler(SIGSEGV, &quit_all);
 	set_handler(SIGTERM, &quit_all);
 	set_handler(SIGUSR1, &update_battery);
+	set_handler(SIGUSR1, &handle_sigusr1);
+
+	/* Stop Ampli */
+	fp = popen(SHELL_CMD_AUDIO_AMP_OFF, "r");
+	if (fp != NULL) {
+		pclose(fp);
+	}
 
 	char *home = getenv("HOME");
 	if (home == NULL) {
@@ -184,7 +235,7 @@ void GMenu2X::run() {
 	delete menu;
 
 	SDL_Quit();
-	unsetenv("SDL_FBCON_DONT_CLEAR");
+	//unsetenv("SDL_FBCON_DONT_CLEAR");
 
 	if (toLaunch) {
 		toLaunch->exec();
@@ -199,7 +250,7 @@ GMenu2X::GMenu2X() : input(*this), sc(this)
 {
 	useSelectionPng = false;
 
-	powerSaver = PowerSaver::getInstance();
+	//powerSaver = PowerSaver::getInstance();
 	layout = std::make_unique<Layout>();
 	top = layout->topItem();
 
@@ -208,7 +259,7 @@ GMenu2X::GMenu2X() : input(*this), sc(this)
 	 * https://github.com/mthuurne/opendingux-buildroot/blob
 	 * 			/opendingux-2010.11/package/sdl/sdl-fbcon-clear-onexit.patch
 	 */
-	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	//setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 
 	if( SDL_Init(SDL_INIT_TIMER) < 0) {
 		ERROR("Could not initialize SDL: %s\n", SDL_GetError());
@@ -229,8 +280,8 @@ GMenu2X::GMenu2X() : input(*this), sc(this)
 
 	SDL_WM_SetCaption("GMenu2X", nullptr);
 
-#if defined(G2X_BUILD_OPTION_SCREEN_WIDTH) && defined(G2X_BUILD_OPTION_SCREEN_HEIGHT)
-	s = OutputSurface::open(G2X_BUILD_OPTION_SCREEN_WIDTH, G2X_BUILD_OPTION_SCREEN_HEIGHT, 0);
+#if defined(G2X_BUILD_OPTION_SCREEN_WIDTH) && defined(G2X_BUILD_OPTION_SCREEN_HEIGHT) && defined(G2X_BUILD_OPTION_SCREEN_DEPTH)
+	s = OutputSurface::open(G2X_BUILD_OPTION_SCREEN_WIDTH, G2X_BUILD_OPTION_SCREEN_HEIGHT, G2X_BUILD_OPTION_SCREEN_DEPTH);
 #else
 	// find largest resolution available
 	for (const auto res : supported_resolutions) {
@@ -300,11 +351,18 @@ GMenu2X::GMenu2X() : input(*this), sc(this)
 		exit(EXIT_FAILURE);
 	}
 
-	powerSaver->setScreenTimeout(confInt["backlightTimeout"]);
+    // Init FunkeyMenu
+    FunkeyMenu::init( *this );
+
+	//powerSaver->setScreenTimeout(confInt["backlightTimeout"]);
 }
 
 GMenu2X::~GMenu2X() {
 	fflush(NULL);
+
+    // Deinit FunkeyMenu
+    FunkeyMenu::end( );
+
 	sc.clear();
 
 #ifdef ENABLE_INOTIFY
@@ -618,9 +676,41 @@ void GMenu2X::mainLoop() {
 			gotEvent = input.getButton(&button, wait);
 		} while (wait && !gotEvent);
 		if (gotEvent) {
+
+			/** Global button mapping: HOME */
+			if (button == InputManager::HOME) {
+				printf("Launch FunKey menu\n");
+				int res = FunkeyMenu::launch();
+				if (res == MENU_RETURN_EXIT) {
+					button = InputManager::QUIT;
+				}
+#ifdef HAVE_LIBOPK
+				{
+					DIR *dirp = opendir(GMENU2X_CARD_ROOT);
+					if (dirp) {
+						struct dirent *dptr;
+						while ((dptr = readdir(dirp))) {
+							if (dptr->d_type != DT_DIR)
+								continue;
+
+							if (!strcmp(dptr->d_name, ".") || !strcmp(dptr->d_name, ".."))
+								continue;
+
+							menu.get()->openPackagesFromDir((string) GMENU2X_CARD_ROOT "/" + dptr->d_name );
+						}
+						closedir(dirp);
+					}
+				}
+#endif
+			}
+
+			/** Global button mapping: QUIT */
 			if (button == InputManager::QUIT) {
+				// Exit main loop here
 				break;
 			}
+
+			/** Check button Mapping by layer instances */
 			for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
 				if ((*it)->handleButtonPress(button)) {
 					break;
@@ -703,7 +793,7 @@ void GMenu2X::showSettings() {
 	}
 
 	if (sd.exec()) {
-		powerSaver->setScreenTimeout(confInt["backlightTimeout"]);
+		//powerSaver->setScreenTimeout(confInt["backlightTimeout"]);
 
 		input.repeatRateChanged();
 		if (brightnessmanager->available())
