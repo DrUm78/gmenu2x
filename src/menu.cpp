@@ -293,9 +293,9 @@ void Menu::paint(Surface &s) {
 				Font::HAlignLeft, Font::VAlignMiddle);
 #endif
 		//Manual indicator
-		if (!linkApp->getManual().empty())
+		/*if (!linkApp->getManual().empty())
 			sc.skinRes("imgs/manual.png")->blit(
-					s, gmenu2x.manualX, gmenu2x.bottomBarIconY);
+					s, gmenu2x.manualX, gmenu2x.bottomBarIconY);*/
 	}
 }
 
