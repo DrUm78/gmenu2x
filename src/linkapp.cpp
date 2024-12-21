@@ -266,6 +266,8 @@ LinkApp::LinkApp(GMenu2X& gmenu2x, string const& linkfile, bool deletable)
 				if (value == "true") consoleApp = true;
 			} else if (name == "selectorfilter") {
 				setSelectorFilter( value );
+			} else if (name == "selectorfile") {
+				setSelectorFile( value );
 			} else if (name == "editable") {
 				if (value == "false")
 					editable = false;
@@ -348,6 +350,7 @@ bool LinkApp::save() {
 	}
 	if (iclock != 0              ) out << "clock="           << iclock          << endl;
 	if (!selectordir.empty()     ) out << "selectordir="     << selectordir     << endl;
+	if (!selectorfile.empty()    ) out << "selectorfile="    << selectorfile    << endl;
 	if (!selectorbrowser         ) out << "selectorbrowser=false"               << endl;
 
 	if (out.tellp() > 0) {
@@ -553,6 +556,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 		if (!selectedDir.empty()) {
 			selectordir = selectedDir;
 		}
+		selectorfile=sel.getFile();
 		gmenu2x.writeTmp(selection, selectedDir);
 		gmenu2x.queueLaunch(
 				prepareLaunch(selectedDir + sel.getFile()),
@@ -669,6 +673,15 @@ const string &LinkApp::getSelectorFilter() {
 
 void LinkApp::setSelectorFilter(const string &selectorfilter) {
 	this->selectorfilter = selectorfilter;
+	edited = true;
+}
+
+const string &LinkApp::getSelectorFile() {
+	return selectorfile;
+}
+
+void LinkApp::setSelectorFile(const string &selectorfile) {
+	this->selectorfile = selectorfile;
 	edited = true;
 }
 

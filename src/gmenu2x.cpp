@@ -754,10 +754,10 @@ void GMenu2X::showSettings() {
 			*this, tr["Language"],
 			tr["Set the language used by GMenu2X"],
 			&lang, &translations)));
-	/*sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
 			*this, tr["Save last selection"],
 			tr["Save the last selected link and section on exit"],
-			&confInt["saveSelection"])));*/
+			&confInt["saveSelection"])));
 	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
 			*this, tr["Output logs"],
 			tr["Logs the output of the links. Use the Log Viewer to read them."],
