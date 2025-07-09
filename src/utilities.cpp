@@ -40,16 +40,7 @@
 using namespace std;
 
 bool case_less::operator()(const string &left, const string &right) const {
-	return std::lexicographical_compare(left.begin(), left.end(),
-					    right.begin(), right.end());
-}
-
-std::string case_less::to_lower(std::string data)
-{
-	std::transform(data.begin(), data.end(), data.begin(), 
-		[](std::string::value_type c) { return std::tolower(c); }
-	);
-	return data;
+	return strcasecmp(left.c_str(), right.c_str()) < 0;
 }
 
 string trim(const string& s) {

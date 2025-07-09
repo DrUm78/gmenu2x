@@ -136,7 +136,7 @@ bool FileLister::browse(const string& path, bool clean)
 			for (auto& filterExt : filter) {
 				// Note: this won't work with UTF8 characters but there shouldn't
 				// be any 
-				if (case_less::to_lower(ext) == case_less::to_lower(filterExt)) {
+				if (strcasecmp(ext, filterExt.c_str()) == 0) {
 					fileSet.insert(string(dptr->d_name));
 					break;
 				}

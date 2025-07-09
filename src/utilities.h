@@ -33,7 +33,6 @@ using ConfIntHash = std::unordered_map<std::string, int>;
 class case_less {
 public:
 	bool operator()(const std::string &left, const std::string &right) const;
-	static std::string to_lower(std::string input);
 };
 
 inline bool isUTF8Starter(char c) {
