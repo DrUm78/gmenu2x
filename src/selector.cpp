@@ -58,6 +58,8 @@ int Selector::searchFile(const std::string &file, FileLister &fl) {
     }
     if(idx>=fl.getFiles().size())
       idx=0;
+    if(fl.getDirectories().size()>0)
+      idx+=fl.getDirectories().size()-1;
   }
 
   return idx+1;
