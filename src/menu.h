@@ -127,6 +127,7 @@ public:
 			Action action, std::string const& description="",
 			std::string const& icon="");
 	bool addLink(std::string const& path, std::string const& file);
+	bool addSection(const std::string &sectionName);
 
 	/**
 	 * Looks up a section by name, adding it if it doesn't exist yet.
@@ -165,6 +166,7 @@ public:
 
 	const std::vector<std::string> &getSections() { return sections; }
 	std::vector<std::unique_ptr<Link>> *sectionLinks(int i = -1);
+	void renameSection(int index, const std::string &name);
 };
 
 #endif // MENU_H

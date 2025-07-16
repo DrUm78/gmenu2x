@@ -108,7 +108,7 @@ bool InputManager::readConfFile(const string &conffile) {
 			else if (name == "altright") button = ALTRIGHT;
 			else if (name == "menu")     button = MENU;
 			else if (name == "settings") button = SETTINGS;
-			else if (name == "home") button = HOME;
+			else if (name == "home")     button = HOME;
 			else {
 				WARNING("InputManager: Ignoring unknown button name \"%s\"\n",
 						name.c_str());

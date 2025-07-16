@@ -500,6 +500,21 @@ int Menu::sectionNamed(const char *sectionName)
 	return idx;
 }
 
+bool Menu::addSection(const string &sectionName) {
+	string sectiondir = GMenu2X::getHome() + "/sections";
+	if (!fileExists(sectiondir))
+		mkdir(sectiondir.c_str(), 0755);
+
+	sectiondir = sectiondir + "/" + sectionName;
+	if (mkdir(sectiondir.c_str(), 0755) == 0) {
+		sections.push_back(sectionName);
+		vector<Link*> ll;
+		//links.push_back(ll); // DrUm78: can't compile this line, not sure what it does?
+		return true;
+	}
+	return false;
+}
+
 void Menu::deleteSelectedLink()
 {
 	string iconpath = selLink()->getIconPath();
@@ -885,4 +900,8 @@ void Menu::readLinksOfSection(
 	}
 
 	closedir(dirp);
+}
+
+void Menu::renameSection(int index, const string &name) {
+	sections[index] = name;
 }

@@ -1057,16 +1057,57 @@ void GMenu2X::deleteLink() {
 void GMenu2X::addSection() {
 	InputDialog id(*this, input, tr["Insert a name for the new section"]);
 	if (id.exec()) {
-		// Look up section; create if it doesn't exist yet.
-		auto idx = menu->sectionNamed(id.getInput());
-		// Switch to the new section.
-		menu->setSectionIndex(idx);
+		//only if a section with the same name does not exist
+		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
+				== menu->getSections().end()) {
+			//section directory doesn't exists
+			if (menu->addSection(id.getInput()))
+				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
+		}
 	}
 }
 
-void GMenu2X::deleteSection()
-{
-	menu->deleteSelectedSection();
+void GMenu2X::renameSection() {
+	InputDialog id(*this, input, tr["Insert a new name for this section"],menu->selSection());
+	if (id.exec()) {
+		//only if a section with the same name does not exist & !samename
+		if (menu->selSection() != id.getInput()
+		 && find(menu->getSections().begin(),menu->getSections().end(), id.getInput())
+				== menu->getSections().end()) {
+			//section directory doesn't exists
+			string newsectiondir = getHome() + "/sections/" + id.getInput();
+			string sectiondir = getHome() + "/sections/" + menu->selSection();
+
+			if (!rename(sectiondir.c_str(), newsectiondir.c_str())) {
+				string oldpng = menu->selSection() + ".png";
+				string newpng = id.getInput() + ".png";
+				string oldicon = sc.getSkinFilePath(oldpng);
+				string newicon = sc.getSkinFilePath(newpng);
+
+				if (!oldicon.empty() && newicon.empty()) {
+					newicon = oldicon;
+					newicon.replace(newicon.find(oldpng), oldpng.length(), newpng);
+
+					if (!fileExists(newicon)) {
+						rename(oldicon.c_str(), newicon.c_str());
+						sc.move("skin:"+oldpng, "skin:"+newpng);
+					}
+				}
+				menu->renameSection(menu->selSectionIndex(), id.getInput());
+			}
+		}
+	}
+}
+
+void GMenu2X::deleteSection() {
+	MessageBox mb(*this,tr["You will lose all the links in this section."]+"\n"+tr["Are you sure?"]);
+	mb.setButton(InputManager::ACCEPT, tr["Yes"]);
+	mb.setButton(InputManager::CANCEL, tr["No"]);
+	if (mb.exec() == InputManager::ACCEPT) {
+
+		if (rmtree(getHome() + "/sections/" + menu->selSection()))
+			menu->deleteSelectedSection();
+	}
 }
 
 string GMenu2X::getDiskFree(const char *path) {

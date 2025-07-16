@@ -79,6 +79,7 @@ inline std::string trimExtension(std::string const& filename) {
 }
 
 bool fileExists(const std::string &file);
+bool rmtree(std::string path);
 
 /**
  * Constructs a non-existing path in a given directory based on the given name.
