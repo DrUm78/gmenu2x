@@ -793,6 +793,8 @@ void GMenu2X::showSettings() {
 		if (lang != tr.lang()) {
 			tr.setLang(lang);
 			confStr["lang"] = lang;
+			writeConfig();
+			exit(0);
 		}
 
 		writeConfig();
@@ -1094,6 +1096,7 @@ void GMenu2X::renameSection() {
 					}
 				}
 				menu->renameSection(menu->selSectionIndex(), id.getInput());
+				exit(0); // DrUm78: force refresh to apply changes in real time
 			}
 		}
 	}
@@ -1107,6 +1110,7 @@ void GMenu2X::deleteSection() {
 
 		if (rmtree(getHome() + "/sections/" + menu->selSection()))
 			menu->deleteSelectedSection();
+	exit(0); // DrUm78: force refresh to apply changes in real time
 	}
 }
 
