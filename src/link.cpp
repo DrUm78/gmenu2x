@@ -116,9 +116,11 @@ const string &Link::getTitle() const {
 }
 
 void Link::setTitle(const string &title) {
-	this->title = title;
-	updateTitleSurface();
-	edited = true;
+	if (title != "") {
+		this->title = title;
+		updateTitleSurface();
+		edited = true;
+	}
 }
 
 const string &Link::getDescription() const {
