@@ -966,6 +966,7 @@ void GMenu2X::editLink() {
 	string linkSelFilter = linkApp->getSelectorFilter();
 	string linkSelDir = linkApp->getSelectorDir();
 	bool linkSelBrowser = linkApp->getSelectorBrowser();
+	string linkSelAliases = linkApp->getAliasFile();
 
 	string diagTitle = tr.translate("Edit $1",linkTitle.c_str(),NULL);
 	string diagIcon = linkApp->getIconPath();
@@ -1023,6 +1024,10 @@ void GMenu2X::editLink() {
 				*this, tr["Display Console"],
 				tr["Must be enabled for console-based applications"],
 				&linkApp->consoleApp)));
+		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingFile(
+				*this, tr["Selector Aliases"],
+				tr["File containing a list of aliases for the selector"],
+				&linkSelAliases)));
 	}
 
 	if (sd.exec()) {
@@ -1033,6 +1038,7 @@ void GMenu2X::editLink() {
 		linkApp->setSelectorFilter(linkSelFilter);
 		linkApp->setSelectorDir(linkSelDir);
 		linkApp->setSelectorBrowser(linkSelBrowser);
+		linkApp->setAliasFile(linkSelAliases);
 #ifdef ENABLE_CPUFREQ
 		linkApp->setClock(cpu.freqFromStr(freq));
 #endif

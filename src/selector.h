@@ -34,7 +34,10 @@ class Selector : protected Dialog {
 private:
 	LinkApp& link;
 	std::string file, dir, screendir;
+	std::unordered_map<std::string, std::string> aliases;
 
+	void loadAliases();
+	std::string getAlias(const std::string &key);
 	bool prepare(FileLister& fl);
 
 	/**

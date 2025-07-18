@@ -249,6 +249,8 @@ LinkApp::LinkApp(GMenu2X& gmenu2x, string const& linkfile, bool deletable)
 			setSelectorFilter( value );
 		} else if (name == "selectorfile") {
 			setSelectorFile( value );
+		} else if (name == "selectoraliases") {
+			setAliasFile( value );
 		} else if (!isOpk()) {
 			if (name == "title") {
 				setTitle(value);
@@ -352,6 +354,7 @@ bool LinkApp::save() {
 	if (!selectordir.empty()     ) out << "selectordir="     << selectordir     << endl;
 	if (!selectorfile.empty()    ) out << "selectorfile="    << selectorfile    << endl;
 	if (!selectorbrowser         ) out << "selectorbrowser=false"               << endl;
+	if (!aliasfile.empty()       ) out << "selectoraliases=" << aliasfile       << endl;
 
 	if (out.tellp() > 0) {
 		DEBUG("Saving app settings: %s\n", file.c_str());
@@ -669,6 +672,17 @@ void LinkApp::setSelectorBrowser(bool value) {
 
 const string &LinkApp::getSelectorFilter() {
 	return selectorfilter;
+}
+
+const string &LinkApp::getAliasFile() {
+	return aliasfile;
+}
+
+void LinkApp::setAliasFile(const string &aliasfile) {
+	if (fileExists(aliasfile)) {
+		this->aliasfile = aliasfile;
+		edited = true;
+	}
 }
 
 void LinkApp::setSelectorFilter(const string &selectorfilter) {

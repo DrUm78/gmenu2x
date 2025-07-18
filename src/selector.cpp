@@ -43,6 +43,7 @@ Selector::Selector(GMenu2X& gmenu2x, LinkApp& link, const string &selectorDir)
 	: Dialog(gmenu2x)
 	, link(link)
 {
+	loadAliases();
 	dir = selectorDir.empty() ? link.getSelectorDir() : selectorDir;
 	if (dir[dir.length()-1]!='/') dir += "/";
 }
@@ -264,4 +265,27 @@ int Selector::goToParentDir(FileLister& fl) {
 	auto& subdirs = fl.getDirectories();
 	auto it = find(subdirs.begin(), subdirs.end(), oldName);
 	return it == subdirs.end() ? 0 : it - subdirs.begin();
+}
+
+void Selector::loadAliases() {
+	aliases.clear();
+	if (fileExists(link.getAliasFile())) {
+		string line;
+		ifstream infile (link.getAliasFile().c_str(), ios_base::in);
+		while (getline(infile, line, '\n')) {
+			string::size_type position = line.find("=");
+			string name = trim(line.substr(0,position));
+			string value = trim(line.substr(position+1));
+			aliases[name] = value;
+		}
+		infile.close();
+	}
+}
+
+string Selector::getAlias(const string &key) {
+	unordered_map<string, string>::iterator i = aliases.find(key);
+	if (i == aliases.end())
+		return "";
+	else
+		return i->second;
 }

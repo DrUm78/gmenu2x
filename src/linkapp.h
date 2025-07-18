@@ -41,6 +41,7 @@ private:
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorfile;
 	bool selectorbrowser, deletable, editable;
 
+	std::string aliasfile;
 	std::string file;
 
 	bool dontleave;
@@ -79,6 +80,8 @@ public:
 	void setSelectorBrowser(bool value);
 	const std::string &getSelectorFilter();
 	void setSelectorFilter(const std::string &selectorfilter);
+	const std::string &getAliasFile();
+	void setAliasFile(const std::string &aliasfile);
 	const std::string &getSelectorFile();
 	void setSelectorFile(const std::string &selectorfile);
 
