@@ -844,6 +844,7 @@ void GMenu2X::skinMenu() {
 		if (curSkin != confStr["skin"]) {
 			setSkin(confStr["skin"]);
 			writeConfig();
+			exit(0);
 		}
 		writeSkinConfig();
 		initBG();
