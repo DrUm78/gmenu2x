@@ -72,10 +72,10 @@ int Selector::exec(int startSelection) {
 	FileLister fl;
 	fl.setShowDirectories(showDirectories);
 	fl.setFilter(link.getSelectorFilter());
-	while (!prepare(fl) && showDirectories && dir != "/") {
-		// The given directory could not be opened; try parent.
-		dir = parentDir(dir);
-	}
+	std::vector<std::string> screens;
+	std::vector<std::string> titles;
+
+	prepare(&fl, &screens, &titles);
 
 	if(link.getSelectorFile().size()>0)
 		startSelection=searchFile(link.getSelectorFile(),fl);
@@ -230,7 +230,7 @@ int Selector::exec(int startSelection) {
 							selected = goToParentDir(fl);
 						} else {
 							dir += subdir + '/';
-							prepare(fl);
+							prepare(&fl, &screens, &titles);
 							selected = 0;
 						}
 						firstElement = 0;
@@ -246,21 +246,43 @@ int Selector::exec(int startSelection) {
 	return result ? (int)selected : -1;
 }
 
-bool Selector::prepare(FileLister& fl) {
-	bool opened = fl.browse(dir);
+void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::vector<std::string> *titles) {
+	fl->browse(dir, true);
+	freeScreenshots(screens);
+	screens->resize(fl->getFiles().size());
+	titles->resize(fl->getFiles().size());
 
-	screendir = dir;
+	string screendir = link.getSelectorScreens();
 	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
 		screendir += "/";
 	}
 
-	return opened;
+	string noext;
+	string::size_type pos;
+	for (uint i=0; i<fl->getFiles().size(); i++) {
+		noext = fl->getFiles()[i];
+		pos = noext.rfind(".");
+		if (pos!=string::npos && pos>0)
+			noext = noext.substr(0, pos);
+		titles->at(i) = getAlias(noext);
+		if (titles->at(i).empty())
+			titles->at(i) = noext;
+
+		DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
+
+		if (fileExists(screendir+noext+".png"))
+			screens->at(i) = screendir+noext+".png";
+		else
+			screens->at(i) = "";
+	}
 }
 
 int Selector::goToParentDir(FileLister& fl) {
 	string oldDir = dir;
 	dir = parentDir(dir);
-	prepare(fl);
+	std::vector<std::string> screens;
+	std::vector<std::string> titles;
+	prepare(&fl, &screens, &titles);
 	string oldName = oldDir.substr(dir.size(), oldDir.size() - dir.size() - 1);
 	auto& subdirs = fl.getDirectories();
 	auto it = find(subdirs.begin(), subdirs.end(), oldName);
@@ -279,6 +301,13 @@ void Selector::loadAliases() {
 			aliases[name] = value;
 		}
 		infile.close();
+	}
+}
+
+void Selector::freeScreenshots(vector<string> *screens) {
+	for (uint i=0; i<screens->size(); i++) {
+		if (!screens->at(i).empty())
+			gmenu2x.sc.del(screens->at(i));
 	}
 }
 

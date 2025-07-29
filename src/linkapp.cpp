@@ -690,6 +690,15 @@ void LinkApp::setSelectorFilter(const string &selectorfilter) {
 	edited = true;
 }
 
+const string &LinkApp::getSelectorScreens() {
+	return selectorscreens;
+}
+
+void LinkApp::setSelectorScreens(const string &selectorscreens) {
+	this->selectorscreens = selectorscreens;
+	edited = true;
+}
+
 const string &LinkApp::getSelectorFile() {
 	return selectorfile;
 }
