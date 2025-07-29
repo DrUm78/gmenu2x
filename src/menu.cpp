@@ -508,8 +508,8 @@ bool Menu::addSection(const string &sectionName) {
 	sectiondir = sectiondir + "/" + sectionName;
 	if (mkdir(sectiondir.c_str(), 0755) == 0) {
 		sections.push_back(sectionName);
-		vector<Link*> ll;
-		//links.push_back(ll); // DrUm78: can't compile this line, not sure what it does?
+		vector<unique_ptr<Link>> ll;
+		links.push_back(move(ll));
 		return true;
 	}
 	return false;
