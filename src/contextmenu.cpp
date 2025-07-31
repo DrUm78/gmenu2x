@@ -43,18 +43,9 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 					std::bind(&GMenu2X::showManual, &gmenu2x)));
 		}
 
-		/* FIXME(percuei): This permits to mask the "Edit link" entry
-		 *                 on the contextual menu in case CPUFREQ support is
-		 *                 not compiled in and the link corresponds to an OPK.
-		 *                 This is not a good idea as it'll break things if
-		 *                 a new config option is added to the contextual menu.
-		 */
 		if (app->isEditable() && (
 				!app->isOpk()
-#if defined(ENABLE_CPUFREQ)
-				|| true
-#endif
-				|| !app->getSelectorDir().empty()
+				|| true	|| !app->getSelectorDir().empty() // DrUm78: Allow OPKs to have edit option
 				)) {
 			options.push_back(std::make_shared<MenuOption>(
 					tr.translate("Edit $1", app->getTitle().c_str(), NULL),

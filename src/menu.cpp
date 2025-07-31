@@ -509,7 +509,7 @@ bool Menu::addSection(const string &sectionName) {
 	if (mkdir(sectiondir.c_str(), 0755) == 0) {
 		sections.push_back(sectionName);
 		vector<unique_ptr<Link>> ll;
-		links.push_back(move(ll));
+		links.push_back(std::move(ll));
 		return true;
 	}
 	return false;

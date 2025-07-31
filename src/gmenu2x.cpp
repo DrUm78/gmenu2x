@@ -973,29 +973,28 @@ void GMenu2X::editLink() {
 	string diagIcon = linkApp->getIconPath();
 
 	SettingsDialog sd(*this, input, diagTitle, diagIcon);
-	if (!linkApp->isOpk()) {
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
-				*this, tr["Title"],
-				tr["Link title"],
-				&linkTitle, diagTitle, diagIcon)));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
-				*this, tr["Description"],
-				tr["Link description"],
-				&linkDescription, diagTitle, diagIcon)));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingMultiString(
-				*this, tr["Section"],
-				tr["The section this link belongs to"],
-				&newSection, &menu->getSections())));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingImage(
-				*this, tr["Icon"],
-				tr.translate("Select an icon for this link", linkTitle.c_str(), NULL),
-				&linkIcon, "png")));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingFile(
-				*this, tr["Manual"],
-				tr["Select a manual or README file"],
-				&linkManual, "man.png,txt")));
-	}
-	if (!linkApp->isOpk() || !linkApp->getSelectorDir().empty()) {
+	// DrUm78: Add these fields in the edition menu (OPKs too)
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
+			*this, tr["Title"],
+			tr["Link title"],
+			&linkTitle, diagTitle, diagIcon)));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
+			*this, tr["Description"],
+			tr["Link description"],
+			&linkDescription, diagTitle, diagIcon)));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingMultiString(
+			*this, tr["Section"],
+			tr["The section this link belongs to"],
+			&newSection, &menu->getSections())));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingImage(
+			*this, tr["Icon"],
+			tr.translate("Select an icon for this link", linkTitle.c_str(), NULL),
+			&linkIcon, "png")));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingFile(
+			*this, tr["Manual"],
+			tr["Select a manual or README file"],
+			&linkManual, "man.png,txt")));
+	if (!linkApp->getSelectorDir().empty()) {
 		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingDir(
 				*this, tr["Selector Directory"],
 				tr["Directory to scan for the selector"],
@@ -1016,20 +1015,19 @@ void GMenu2X::editLink() {
 				&freq, &cpufreqs)));
 	}
 #endif
-	if (!linkApp->isOpk()) {
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
-				*this, tr["Selector Filter"],
-				tr["Selector filter (Separate values with a comma)"],
-				&linkSelFilter, diagTitle, diagIcon)));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
-				*this, tr["Display Console"],
-				tr["Must be enabled for console-based applications"],
-				&linkApp->consoleApp)));
-		sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingFile(
-				*this, tr["Selector Aliases"],
-				tr["File containing a list of aliases for the selector"],
-				&linkSelAliases)));
-	}
+	// DrUm78: Add these fields in the edition menu (OPKs too)
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingString(
+			*this, tr["Selector Filter"],
+			tr["Selector filter (Separate values with a comma)"],
+			&linkSelFilter, diagTitle, diagIcon)));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingBool(
+			*this, tr["Display Console"],
+			tr["Must be enabled for console-based applications"],
+			&linkApp->consoleApp)));
+	sd.addSetting(unique_ptr<MenuSetting>(new MenuSettingFile(
+			*this, tr["Selector Aliases"],
+			tr["File containing a list of aliases for the selector"],
+			&linkSelAliases)));
 
 	if (sd.exec()) {
 		linkApp->setTitle(linkTitle);

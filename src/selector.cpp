@@ -252,7 +252,7 @@ void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::v
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->getFiles().size());
 
-	string screendir = link.getSelectorScreens();
+	screendir = dir;
 	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
 		screendir += "/";
 	}
