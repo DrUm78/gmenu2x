@@ -43,6 +43,7 @@ public:
 	Link(GMenu2X& gmenu2x, Action action);
 	virtual ~Link() {};
 
+	void paintDouble();
 	virtual void paint();
 	void paintHover();
 	void paintDescription(int center_x, int center_y);
