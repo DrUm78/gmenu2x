@@ -90,7 +90,6 @@ int Selector::exec(int startSelection) {
 		x = gmenu2x.drawButton(bg, "accept", gmenu2x.tr["Select"], x);
 	}
 	if (showDirectories) {
-		x = gmenu2x.drawButton(bg, "left", "", x);
 		x = gmenu2x.drawButton(bg, "cancel", gmenu2x.tr["Up one folder"], x);
 	} else {
 		x = gmenu2x.drawButton(bg, "cancel", "", x);
@@ -212,7 +211,6 @@ int Selector::exec(int startSelection) {
 					break;
 				}
 				// ...fall through...
-			case InputManager::LEFT:
 				if (showDirectories) {
 					selected = goToParentDir(fl);
 					firstElement = 0;

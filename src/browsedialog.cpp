@@ -20,8 +20,6 @@ BrowseDialog::BrowseDialog(
 	, subtitle(subtitle)
 {
 	buttonBox.add(unique_ptr<IconButton>(new IconButton(
-			gmenu2x, "skin:imgs/buttons/left.png")));
-	buttonBox.add(unique_ptr<IconButton>(new IconButton(
 			gmenu2x, "skin:imgs/buttons/cancel.png",
 			gmenu2x.tr["Up one folder"],
 			bind(&BrowseDialog::directoryUp, this))));
@@ -91,7 +89,6 @@ BrowseDialog::Action BrowseDialog::getAction(InputManager::Button button)
 			return BrowseDialog::ACT_SCROLLUP;
 		case InputManager::ALTRIGHT:
 			return BrowseDialog::ACT_SCROLLDOWN;
-		case InputManager::LEFT:
 		case InputManager::CANCEL:
 			return BrowseDialog::ACT_GOUP;
 		case InputManager::ACCEPT:
