@@ -156,12 +156,6 @@ void BrowseDialog::handleInput()
 void BrowseDialog::directoryUp()
 {
 	string path = getPath();
-
-	if (path == GMENU2X_CARD_ROOT) {
-		quit();
-		return;
-	}
-
 	string::size_type p = path.rfind("/");
 
 	if (p == path.size() - 1) {
@@ -172,6 +166,8 @@ void BrowseDialog::directoryUp()
 		quit();
 	} else {
 		selected = 0;
+		if(p==0)
+      p++;
 		setPath(path.substr(0, p));
 	}
 }
