@@ -28,6 +28,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <set>
+static std::set<SDLKey> pressedKeys;
+
 using namespace std;
 
 bool InputManager::init(Menu *menu)
@@ -184,6 +187,22 @@ bool InputManager::getButton(Button *button, bool wait) {
 		SDL_WaitEvent(&event);
 	else if (!SDL_PollEvent(&event))
 		return false;
+
+	// Disable repeat rate for some keys
+	if (event.type == SDL_KEYDOWN) {
+		SDLKey key = event.key.keysym.sym;
+		if (key == SDLK_a || key == SDLK_b ||
+		    key == SDLK_k || key == SDLK_s) {
+			if (pressedKeys.count(key)) {
+				return false;
+			}
+			pressedKeys.insert(key);
+		}
+	}
+	else if (event.type == SDL_KEYUP) {
+		SDLKey key = event.key.keysym.sym;
+		pressedKeys.erase(key);
+	}
 
 	bool is_kb = false, is_js = false;
 	switch(event.type) {
