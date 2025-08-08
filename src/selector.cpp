@@ -49,21 +49,11 @@ Selector::Selector(GMenu2X& gmenu2x, LinkApp& link, const string &selectorDir)
 }
 
 int Selector::searchFile(const std::string &file, FileLister &fl) {
-  unsigned int idx=0;
-
-  if(fl.getFiles().size()>0) {
-    for(idx=0; idx<fl.getFiles().size(); idx++) {
-      if(fl.getFiles()[idx]==file) {
-        break;
-      }
-    }
-    if(idx>=fl.getFiles().size())
-      idx=0;
-    if(fl.getDirectories().size()>0)
-      idx+=fl.getDirectories().size()-1;
-  }
-
-  return idx+1;
+	if (fl.size() == 0) return 0;
+	for (unsigned int idx = 0; idx < fl.size(); ++idx) {
+		if (fl[idx] == file) return idx;
+	}
+	return 0;
 }
 
 int Selector::exec(int startSelection) {
@@ -163,7 +153,7 @@ int Selector::exec(int startSelection) {
 							x, iY + lineHeight / 2,
 							Font::HAlignLeft, Font::VAlignMiddle);
 				} else {
-					gmenu2x.font->write(s, (gmenu2x.confInt["trimExt"] ? trimExtension(fl[i]) : fl[i]),
+					gmenu2x.font->write(s, (gmenu2x.confInt["trimExt"] ? trimExtension(titles[i]) : titles[i]),
 							x, iY + lineHeight / 2,
 							Font::HAlignLeft, Font::VAlignMiddle);
 				}
@@ -247,31 +237,37 @@ int Selector::exec(int startSelection) {
 void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::vector<std::string> *titles) {
 	fl->browse(dir, true);
 	freeScreenshots(screens);
-	screens->resize(fl->getFiles().size());
-	titles->resize(fl->getFiles().size());
+	screens->resize(fl->size());
+	titles->resize(fl->size());
 
 	screendir = dir;
 	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
 		screendir += "/";
 	}
 
-	string noext;
-	string::size_type pos;
-	for (uint i=0; i<fl->getFiles().size(); i++) {
-		noext = fl->getFiles()[i];
-		pos = noext.rfind(".");
-		if (pos!=string::npos && pos>0)
-			noext = noext.substr(0, pos);
-		titles->at(i) = getAlias(noext);
-		if (titles->at(i).empty())
-			titles->at(i) = noext;
+	for (uint i = 0; i < fl->size(); i++) {
+		string entry = (*fl)[i];
 
-		DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
-
-		if (fileExists(screendir+noext+".png"))
-			screens->at(i) = screendir+noext+".png";
-		else
+		if (fl->isDirectory(i)) {
+			titles->at(i) = entry;
 			screens->at(i) = "";
+		} else {
+			string noext = entry;
+			size_t pos = noext.rfind(".");
+			if (pos != string::npos && pos > 0) noext = noext.substr(0, pos);
+
+			string alias = getAlias(noext);
+			if (!alias.empty())
+				titles->at(i) = alias;
+			else
+				titles->at(i) = entry;
+
+			DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
+			if (fileExists(screendir + noext + ".png"))
+				screens->at(i) = screendir + noext + ".png";
+			else
+				screens->at(i) = "";
+		}
 	}
 }
 
