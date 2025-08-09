@@ -674,10 +674,8 @@ const string &LinkApp::getAliasFile() {
 }
 
 void LinkApp::setAliasFile(const string &aliasfile) {
-	if (fileExists(aliasfile)) {
-		this->aliasfile = aliasfile;
-		edited = true;
-	}
+	this->aliasfile = aliasfile;
+	edited = true;
 }
 
 void LinkApp::setSelectorFilter(const string &selectorfilter) {

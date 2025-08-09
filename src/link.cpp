@@ -138,7 +138,7 @@ const string &Link::getTitle() const {
 }
 
 void Link::setTitle(const string &title) {
-	if (title != "") {
+	if (!title.empty()) {
 		this->title = title;
 		updateTitleSurface();
 		edited = true;
