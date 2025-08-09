@@ -239,7 +239,6 @@ LinkApp::LinkApp(GMenu2X& gmenu2x, string const& linkfile, bool deletable)
 		string name = trim(line.substr(0,position));
 		string value = trim(line.substr(position+1));
 
-		// DrUm78: Get those params from config file and update links (OPKs too)
 		if (name == "clock") {
 			setClock( atoi(value.c_str()) );
 		} else if (name == "selectordir") {
@@ -252,25 +251,30 @@ LinkApp::LinkApp(GMenu2X& gmenu2x, string const& linkfile, bool deletable)
 			setSelectorFile( value );
 		} else if (name == "selectoraliases") {
 			setAliasFile( value );
-		} else if (name == "title") {
-			setTitle(value);
-		} else if (name == "description") {
-			setDescription(value);
-		} else if (name == "launchmsg") {
-			launchMsg = value;
-		} else if (name == "icon") {
-			setIcon(value);
-		} else if (name == "exec") {
-			exec = value;
-		} else if (name == "params") {
-			params = value;
-		} else if (name == "manual") {
-			manual = value;
-		} else if (name == "consoleapp") {
-			if (value == "true") consoleApp = true;
-		} else if (name == "editable") {
-			if (value == "false")
-				editable = false;
+		} else if (!isOpk()) {
+			if (name == "title") {
+				setTitle(value);
+			} else if (name == "description") {
+				setDescription(value);
+			} else if (name == "launchmsg") {
+				launchMsg = value;
+			} else if (name == "icon") {
+				setIcon(value);
+			} else if (name == "exec") {
+				exec = value;
+			} else if (name == "params") {
+				params = value;
+			} else if (name == "manual") {
+				manual = value;
+			} else if (name == "consoleapp") {
+				if (value == "true") consoleApp = true;
+			} else if (name == "selectorfilter") {
+				setSelectorFilter( value );
+			} else if (name == "editable") {
+				if (value == "false")
+					editable = false;
+			} else
+				WARNING("Unrecognized option: '%s'\n", name.c_str());
 		} else
 			WARNING("Unrecognized option: '%s'\n", name.c_str());
 	}
@@ -335,21 +339,22 @@ bool LinkApp::save() {
 	if (!editable || !edited) return true;
 
 	std::ostringstream out;
-	// DrUm78: Save these params in config file when editing link (OPKs too)
-	if (!getTitle().empty()       ) out << "title="           << getTitle()      << endl;
-	if (!getDescription().empty() ) out << "description="     << getDescription()<< endl;
-	if (!launchMsg.empty()        ) out << "launchmsg="       << launchMsg       << endl;
-	if (!icon.empty()             ) out << "icon="            << icon            << endl;
-	if (!exec.empty()             ) out << "exec="            << exec            << endl;
-	if (!params.empty()           ) out << "params="          << params          << endl;
-	if (!manual.empty()           ) out << "manual="          << manual          << endl;
-	if (consoleApp                ) out << "consoleapp=true"                     << endl;
-	if (selectorfilter != "*"     ) out << "selectorfilter="  << selectorfilter  << endl;
-	if (iclock != 0               ) out << "clock="           << iclock          << endl;
-	if (!selectordir.empty()      ) out << "selectordir="     << selectordir     << endl;
-	if (!selectorfile.empty()     ) out << "selectorfile="    << selectorfile    << endl;
-	if (!selectorbrowser          ) out << "selectorbrowser=false"               << endl;
-	if (!aliasfile.empty()        ) out << "selectoraliases=" << aliasfile       << endl;
+	if (!isOpk()) {
+		if (!getTitle().empty()       ) out << "title="      << getTitle()      << endl;
+		if (!getDescription().empty() ) out << "description="<< getDescription()<< endl;
+		if (!launchMsg.empty()   ) out << "launchmsg="       << launchMsg       << endl;
+		if (!icon.empty()        ) out << "icon="            << icon            << endl;
+		if (!exec.empty()        ) out << "exec="            << exec            << endl;
+		if (!params.empty()      ) out << "params="          << params          << endl;
+		if (!manual.empty()      ) out << "manual="          << manual          << endl;
+		if (consoleApp           ) out << "consoleapp=true"                     << endl;
+		if (selectorfilter != "*") out << "selectorfilter="  << selectorfilter  << endl;
+	}
+	if (iclock != 0              ) out << "clock="           << iclock          << endl;
+	if (!selectordir.empty()     ) out << "selectordir="     << selectordir     << endl;
+	if (!selectorfile.empty()    ) out << "selectorfile="    << selectorfile    << endl;
+	if (!selectorbrowser         ) out << "selectorbrowser=false"               << endl;
+	if (!aliasfile.empty()       ) out << "selectoraliases=" << aliasfile       << endl;
 
 	if (out.tellp() > 0) {
 		DEBUG("Saving app settings: %s\n", file.c_str());
