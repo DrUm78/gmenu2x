@@ -199,29 +199,34 @@ int Selector::exec(int startSelection) {
 					result = false;
 					break;
 				}
-				// ...fall through...
-				if (showDirectories) {
-					selected = goToParentDir(fl);
-					firstElement = 0;
+
+				if (link.getSelectorBrowser()) {
+					string::size_type p = dir.rfind("/", dir.size()-2);
+					if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
+						close = true;
+						result = false;
+					} else {
+						dir = dir.substr(0,p+1);
+						selected = 0;
+						firstElement = 0;
+						prepare(&fl,&titles);
+					}
 				}
 				break;
 
 			case InputManager::ACCEPT:
-				if (fl.size() != 0) {
-					if (fl.isFile(selected)) {
-						file = fl[selected];
-						close = true;
-					} else {
-						string subdir = fl[selected];
-						if (subdir == "..") {
-							selected = goToParentDir(fl);
-						} else {
-							dir += subdir + '/';
-							prepare(&fl, &titles);
-							selected = 0;
-						}
-						firstElement = 0;
-					}
+				if (fl.isFile(selected)) {
+					file = fl[selected];
+					close = true;
+				} else {
+					dir = dir+fl[selected];
+					char *buf = realpath(dir.c_str(), NULL);
+					dir = (string) buf + '/';
+					free(buf);
+
+					selected = 0;
+					firstElement = 0;
+					prepare(&fl,&titles);
 				}
 				break;
 

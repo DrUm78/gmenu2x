@@ -167,8 +167,8 @@ void BrowseDialog::directoryUp()
 	} else {
 		selected = 0;
 		if(p==0)
-      p++;
-		setPath(path.substr(0, p));
+			p++;
+			setPath(path.substr(0, p));
 	}
 }
 
