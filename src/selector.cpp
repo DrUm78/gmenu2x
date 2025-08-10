@@ -62,10 +62,9 @@ int Selector::exec(int startSelection) {
 	FileLister fl;
 	fl.setShowDirectories(showDirectories);
 	fl.setFilter(link.getSelectorFilter());
-	std::vector<std::string> screens;
 	std::vector<std::string> titles;
 
-	prepare(&fl, &screens, &titles);
+	prepare(&fl, &titles);
 
 	if(link.getSelectorFile().size()>0)
 		startSelection=searchFile(link.getSelectorFile(),fl);
@@ -218,7 +217,7 @@ int Selector::exec(int startSelection) {
 							selected = goToParentDir(fl);
 						} else {
 							dir += subdir + '/';
-							prepare(&fl, &screens, &titles);
+							prepare(&fl, &titles);
 							selected = 0;
 						}
 						firstElement = 0;
@@ -234,10 +233,8 @@ int Selector::exec(int startSelection) {
 	return result ? (int)selected : -1;
 }
 
-void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::vector<std::string> *titles) {
+void Selector::prepare(FileLister *fl, std::vector<std::string> *titles) {
 	fl->browse(dir, true);
-	freeScreenshots(screens);
-	screens->resize(fl->size());
 	titles->resize(fl->size());
 
 	screendir = dir;
@@ -250,7 +247,6 @@ void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::v
 
 		if (fl->isDirectory(i)) {
 			titles->at(i) = entry;
-			screens->at(i) = "";
 		} else {
 			string noext = entry;
 			size_t pos = noext.rfind(".");
@@ -261,12 +257,6 @@ void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::v
 				titles->at(i) = alias;
 			else
 				titles->at(i) = entry;
-
-			DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
-			if (fileExists(screendir + noext + ".png"))
-				screens->at(i) = screendir + noext + ".png";
-			else
-				screens->at(i) = "";
 		}
 	}
 }
@@ -274,9 +264,8 @@ void Selector::prepare(FileLister *fl, std::vector<std::string> *screens, std::v
 int Selector::goToParentDir(FileLister& fl) {
 	string oldDir = dir;
 	dir = parentDir(dir);
-	std::vector<std::string> screens;
 	std::vector<std::string> titles;
-	prepare(&fl, &screens, &titles);
+	prepare(&fl, &titles);
 	string oldName = oldDir.substr(dir.size(), oldDir.size() - dir.size() - 1);
 	auto& subdirs = fl.getDirectories();
 	auto it = find(subdirs.begin(), subdirs.end(), oldName);
@@ -295,13 +284,6 @@ void Selector::loadAliases() {
 			aliases[name] = value;
 		}
 		infile.close();
-	}
-}
-
-void Selector::freeScreenshots(vector<string> *screens) {
-	for (uint i=0; i<screens->size(); i++) {
-		if (!screens->at(i).empty())
-			gmenu2x.sc.del(screens->at(i));
 	}
 }
 

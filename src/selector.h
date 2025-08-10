@@ -38,8 +38,7 @@ private:
 
 	void loadAliases();
 	std::string getAlias(const std::string &key);
-	void prepare(FileLister *fl, std::vector<std::string> *screens, std::vector<std::string> *titles);
-	void freeScreenshots(std::vector<std::string> *screens);
+	void prepare(FileLister *fl, std::vector<std::string> *titles);
 
 	/**
 	 * Changes 'dir' to its parent directory.
