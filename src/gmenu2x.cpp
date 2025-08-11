@@ -1069,7 +1069,7 @@ void GMenu2X::addSection() {
 		//only if a section with the same name does not exist
 		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
 				== menu->getSections().end()) {
-			//section directory doesn't exists
+			//section directory doesn't exist
 			if (menu->addSection(id.getInput()))
 				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
 		}
@@ -1083,7 +1083,7 @@ void GMenu2X::renameSection() {
 		if (menu->selSection() != id.getInput()
 		 && find(menu->getSections().begin(),menu->getSections().end(), id.getInput())
 				== menu->getSections().end()) {
-			//section directory doesn't exists
+			//section directory doesn't exist
 			string newsectiondir = getHome() + "/sections/" + id.getInput();
 			string sectiondir = getHome() + "/sections/" + menu->selSection();
 

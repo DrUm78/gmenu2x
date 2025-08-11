@@ -206,10 +206,36 @@ int Selector::exec(int startSelection) {
 						close = true;
 						result = false;
 					} else {
-						dir = dir.substr(0,p+1);
-						selected = 0;
+						// Save the current child directory path before going up
+						string oldDir = dir;
+
+						// Move to parent directory
+						dir = dir.substr(0, p+1);
+
+						// Refresh listing for the parent directory
+						prepare(&fl, &titles);
+
+						// Extract basename of the child folder
+						string childName = oldDir;
+						if (!childName.empty() && childName.back() == '/') childName.pop_back();
+						size_t lastSlash = childName.rfind('/');
+						if (lastSlash != string::npos) childName = childName.substr(lastSlash + 1);
+
+						// Search for the childName in the parent's subdirectory list
+						auto& subdirs = fl.getDirectories();
+						int offset = (!subdirs.empty() && subdirs[0] == "..") ? 1 : 0;
+						int found = -1;
+						for (size_t i = offset; i < subdirs.size(); ++i) {
+							string name = subdirs[i];
+							if (!name.empty() && name.back() == '/') name.pop_back();
+							size_t rs = name.rfind('/');
+							if (rs != string::npos) name = name.substr(rs + 1);
+							if (name == childName) { found = (int)i; break; }
+						}
+
+						// Set selection to the previous child folder or fallback
+						selected = (found >= 0) ? found : (offset < (int)subdirs.size() ? offset : 0);
 						firstElement = 0;
-						prepare(&fl,&titles);
 					}
 				}
 				break;
@@ -219,14 +245,51 @@ int Selector::exec(int startSelection) {
 					file = fl[selected];
 					close = true;
 				} else {
-					dir = dir+fl[selected];
-					char *buf = realpath(dir.c_str(), NULL);
-					dir = (string) buf + '/';
-					free(buf);
+					if (fl[selected] == "..") {
+						// Going up by clicking ".." - same logic as Cancel
+						string oldDir = dir;
 
-					selected = 0;
-					firstElement = 0;
-					prepare(&fl,&titles);
+						// Remove trailing slash before finding parent
+						if (!dir.empty() && dir.back() == '/') dir.pop_back();
+						size_t p = dir.rfind('/');
+						if (p != string::npos) dir = dir.substr(0, p+1);
+						else dir = "/";
+
+						// Refresh listing for the parent directory
+						prepare(&fl, &titles);
+
+						// Extract basename of the child folder
+						string childName = oldDir;
+						if (!childName.empty() && childName.back() == '/') childName.pop_back();
+						size_t lastSlash = childName.rfind('/');
+						if (lastSlash != string::npos) childName = childName.substr(lastSlash + 1);
+
+						// Search for the childName in the parent's subdirectory list
+						auto& subdirs = fl.getDirectories();
+						int offset = (!subdirs.empty() && subdirs[0] == "..") ? 1 : 0;
+						int found = -1;
+						for (size_t i = offset; i < subdirs.size(); ++i) {
+							string name = subdirs[i];
+							if (!name.empty() && name.back() == '/') name.pop_back();
+							size_t rs = name.rfind('/');
+							if (rs != string::npos) name = name.substr(rs + 1);
+							if (name == childName) { found = (int)i; break; }
+						}
+
+						// Set selection to the previous child folder or fallback
+						selected = (found >= 0) ? found : (offset < (int)subdirs.size() ? offset : 0);
+						firstElement = 0;
+					} else {
+						// Enter a normal subdirectory
+						dir = dir + fl[selected];
+						char *buf = realpath(dir.c_str(), NULL);
+						dir = (string) buf + '/';
+						free(buf);
+
+						selected = 0;
+						firstElement = 0;
+						prepare(&fl, &titles);
+					}
 				}
 				break;
 
