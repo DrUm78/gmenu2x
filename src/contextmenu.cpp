@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 
+#include <unordered_set>
 
 struct ContextMenu::MenuOption {
 	typedef std::function<void(void)> Action;
@@ -71,12 +72,20 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 	options.push_back(std::make_shared<MenuOption>(
 			tr["Add section"],
 			std::bind(&GMenu2X::addSection, &gmenu2x)));
-	options.push_back(std::make_shared<MenuOption>(
-			tr["Rename section"],
-			std::bind(&GMenu2X::renameSection, &gmenu2x)));
-	options.push_back(std::make_shared<MenuOption>(
-			tr["Delete section"],
-			std::bind(&GMenu2X::deleteSection, &gmenu2x)));
+
+	std::unordered_set<std::string> predefinedSections = {
+		"applications", "emulators", "games", "settings"
+	};
+	std::string section = menu.selSection();
+	bool isPredefined = predefinedSections.count(section) > 0;
+	if ((isPredefined && menu.sectionLinks()->empty()) || !isPredefined) {
+		options.push_back(std::make_shared<MenuOption>(
+				tr["Rename section"],
+				std::bind(&GMenu2X::renameSection, &gmenu2x)));
+		options.push_back(std::make_shared<MenuOption>(
+				tr["Delete section"],
+				std::bind(&GMenu2X::deleteSection, &gmenu2x)));
+	}
 
 	// Compute bounding box.
 	int w = 0;
