@@ -1,7 +1,7 @@
 GMenu2X has been created by Massimiliano "Ryo" Torromeo, and is released under the GPL-v2 license.
 
-This version is maintained by the Qi-Hardware and OpenDingux crew. The credits, as well as the latest source code can be found here:
-http://projects.qi-hardware.com/index.php/p/gmenu2x
+This version is maintained by DrUm78. The credits, as well as the latest source code can be found here:
+https://github.com/DrUm78/gmenu2x
 
 Credits for the translations:
 ----

@@ -18,6 +18,7 @@ gmenu2x
 #	src/Makefile
 #	src/Makefile.in
 /build*/
+CMakeFiles/
 CMakeCache.txt
 buildopts.h
 cmake_install.cmake
