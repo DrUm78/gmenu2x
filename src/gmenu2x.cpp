@@ -72,6 +72,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#define SCREEN_WIDTH  240
+#define SCREEN_HEIGHT 240
+#define SCREEN_DEPTH  16
+
 #define DEFAULT_FONT_PATH "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf"
 #define DEFAULT_FONT_SIZE 12
 
@@ -269,16 +273,7 @@ GMenu2X::GMenu2X() : input(*this), sc(this)
 
 	SDL_WM_SetCaption("GMenu2X", nullptr);
 
-#if defined(G2X_BUILD_OPTION_SCREEN_WIDTH) && defined(G2X_BUILD_OPTION_SCREEN_HEIGHT) && defined(G2X_BUILD_OPTION_SCREEN_DEPTH)
-	s = OutputSurface::open(G2X_BUILD_OPTION_SCREEN_WIDTH, G2X_BUILD_OPTION_SCREEN_HEIGHT, G2X_BUILD_OPTION_SCREEN_DEPTH);
-#else
-	// find largest resolution available
-	for (const auto res : supported_resolutions) {
-		if (OutputSurface::resolutionSupported(res.first, res.second) &&
-		    (s = OutputSurface::open(res.first, res.second, 0)))
-			break;
-	}
-#endif
+	s = OutputSurface::open(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_DEPTH);
 
 	if (!s) {
 		ERROR("Failed to create main window\n");

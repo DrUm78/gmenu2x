@@ -14,7 +14,7 @@ if (CLOCK)
 	add_compile_definitions(ENABLE_CLOCK)
 endif (CLOCK)
 
-option(BIND_CONSOLE "Support for binding/unbinding terminal" OFF)
+option(BIND_CONSOLE "Support for binding/unbinding terminal" ON)
 if (BIND_CONSOLE)
 	add_compile_definitions(BIND_CONSOLE)
 endif (BIND_CONSOLE)
